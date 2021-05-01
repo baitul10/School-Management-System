@@ -16,9 +16,21 @@ namespace Structure.Data
 
         public async Task<Student> CreateAsync(Student student)
         {
-            var result = await _context.Students.AddAsync(student);
+            var result = new Student
+            {
+                Name = student.Name,
+                Roll = student.Roll,
+                Phone = student.Phone,
+                Email = student.Email,
+                ClassesId = student.ClassesId,
+                SchoolId = student.SchoolId
+            };
+                
+                
+                
+            await _context.Students.AddAsync(result);
             await  _context.SaveChangesAsync();
-            return result.Entity;
+            return result;
         }
 
         public async Task DeleteAsync(Student student)
@@ -30,14 +42,20 @@ namespace Structure.Data
 
         public async Task<IReadOnlyList<Student>> GetAsync()
         {
-            var students = await _context.Students.ToListAsync();
+            var students = await _context.Students
+                .Include(p=>p.Classes)
+                .Include(p=>p.School)
+                .ToListAsync();
             await _context.SaveChangesAsync();
             return students;
         }
 
         public async Task<Student> GetAsync(int id)
         {
-            var students = await _context.Students.FirstOrDefaultAsync(x => x.id == id);
+            var students = await _context.Students
+                .Include(p=>p.Classes)
+                .Include(p=>p.School)
+                .FirstOrDefaultAsync(x => x.id == id);
             return students;
         }
 
